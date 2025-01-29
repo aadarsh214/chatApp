@@ -14,12 +14,14 @@ wss.on('connection', (socket) =>{
         const ParsedMessage = JSON.parse(message as unknown as string);
 
         if(ParsedMessage.type === 'join'){
+            console.log('User Joined Room'+ ParsedMessage.payload.roomId);
             allSockets.push({
                 socket,
                 room: ParsedMessage.payload.roomId
             })
         }
         if(ParsedMessage.type === 'chat'){
+            console.log('User Sent Message'+ ParsedMessage.payload.message);
             let currentUserRoom = null;
             for(let i = 0; i < allSockets.length; i++){
                 if(allSockets[i].socket === socket){
