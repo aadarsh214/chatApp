@@ -1,40 +1,52 @@
-import { WebSocketServer, WebSocket} from 'ws';
+// Import WebSocket-related classes from the 'ws' package
+import { WebSocketServer, WebSocket } from "ws";
 
-const wss = new WebSocketServer({ port: 8080 });
+// Create a WebSocket server instance listening on port 8080
+const wss = new WebSocketServer({port : 8080});
 
+// Define a User interface to type the connection information
+// Each user has a WebSocket connection and belongs to a specific room
 interface User{
     socket: WebSocket;
-    room: string;
+    room: string
 }
 
-let allSockets: User[] = [];
+// Array to store all active WebSocket connections and their room assignments
+let allSockets : User[] = [];
 
-wss.on('connection', (socket) =>{
-    socket.on('message', (message) =>{
-        const ParsedMessage = JSON.parse(message as unknown as string);
+// Listen for new WebSocket connections
+wss.on("connection", (socket) => {
+    // Handle incoming messages from clients
+    socket.on("message", (message) => {
+        // Parse the incoming message from JSON string to object
+        // @ts-ignore is used to bypass TypeScript type checking for the JSON.parse
+        const parsedMessage = JSON.parse(message);
 
-        if(ParsedMessage.type === 'join'){
-            console.log('User Joined Room'+ ParsedMessage.payload.roomId);
+        // Handle 'join' message type - when a user wants to join a room
+        if(parsedMessage.type === "join"){
+            // Add the new user to allSockets array with their socket and requested room
             allSockets.push({
                 socket,
-                room: ParsedMessage.payload.roomId
+                room : parsedMessage.payload.roomId
             })
         }
-        if(ParsedMessage.type === 'chat'){
-            console.log('User Sent Message'+ ParsedMessage.payload.message);
+
+        // Handle 'chat' message type - when a user sends a chat message
+        if (parsedMessage.type  === "chat"){
+            // Find the room of the user who sent the message
             let currentUserRoom = null;
-            for(let i = 0; i < allSockets.length; i++){
+            for(let i =0; i<allSockets.length; i++){
                 if(allSockets[i].socket === socket){
-                    currentUserRoom = allSockets[i].room;
+                    currentUserRoom = allSockets[i].room
                 }
             }
-            for(let i = 0 ; i < allSockets.length ; i++){
+
+            // Broadcast the message to all users in the same room
+            for(let i =0; i<allSockets.length; i++){
                 if(allSockets[i].room === currentUserRoom){
-                    allSockets[i].socket.send(ParsedMessage.payload.message);
+                    allSockets[i].socket.send(parsedMessage.payload.message)
                 }
-            } 
+            }
         }
     })
-
-
 })
