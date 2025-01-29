@@ -12,17 +12,17 @@ let allSockets: User[] = [];
 wss.on('connection', (socket) =>{
     socket.on('message', (message) =>{
         //@ts-ignore
-        const ParsedMessage = JSON.parse(message);
+        const parsedMessage = JSON.parse(message);
 
-        if(ParsedMessage.type === "join"){
-            console.log('User Joined Room'+ ParsedMessage.payload.roomId);
+        if(parsedMessage.type === "join"){
+            console.log('User Joined Room'+ parsedMessage.payload.roomId);
             allSockets.push({
                 socket,
-                room: ParsedMessage.payload.roomId
+                room: parsedMessage.payload.roomId
             })
         }
-        if(ParsedMessage.type === "chat"){
-            console.log('User Sent Message'+ ParsedMessage.payload.message);
+        if(parsedMessage.type === "chat"){
+            console.log('User Sent Message'+ parsedMessage.payload.message);
             let currentUserRoom = null;
             for(let i = 0; i < allSockets.length; i++){
                 if(allSockets[i].socket === socket){
@@ -31,7 +31,7 @@ wss.on('connection', (socket) =>{
             }
             for(let i = 0 ; i < allSockets.length ; i++){
                 if(allSockets[i].room === currentUserRoom){
-                    allSockets[i].socket.send(ParsedMessage.payload.message);
+                    allSockets[i].socket.send(parsedMessage.payload.message);
                 }
             } 
         }
