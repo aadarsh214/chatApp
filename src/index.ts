@@ -2,19 +2,23 @@ import { WebSocketServer, WebSocket} from 'ws';
 
 const wss = new WebSocketServer({ port: 8080 });
 
-let allSockets: WebSocket[] = [];
+interface User{
+    socket: WebSocket;
+    root: string;
+}
+
+let allSockets: User[] = [];
 
 wss.on('connection', (socket) =>{
-    allSockets.push(socket);
-    console.log('user connected');
-
     socket.on('message', (message) =>{
-        console.log('message recived' + message.toString());
-        allSockets.forEach(s =>{
-            s.send(message.toString());
-        })
+        const ParsedMessage = JSON.parse(message as unknown as string);
+
+        if(ParsedMessage.type === 'join'){
+
+        }
+        if(ParsedMessage.type === 'chat'){
+            }
     })
-    socket.on('dissconnected', () =>{
-        allSockets = allSockets.filter(x => x != socket);   
-    })
+
+
 })
